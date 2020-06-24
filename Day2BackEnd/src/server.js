@@ -1,0 +1,10 @@
+const express = require("express")
+const studentsRoutes = require("./services/students")
+const cors = require("cors")
+const server = express()
+server.use(cors())
+server.use(express.json())
+server.use("/students" , studentsRoutes)
+server.listen(4000,() => 
+    console.log('Server is running perfectly')
+)
