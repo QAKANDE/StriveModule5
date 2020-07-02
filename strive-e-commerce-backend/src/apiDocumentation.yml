@@ -1,0 +1,150 @@
+openapi: 3.0.1
+info:
+  title: "Strive Market Place"
+  description: This describes every CRUD routes in the Strive Market Place
+  version: 1.0.0
+servers:
+  - url: http://localhost:3002
+    description: This is the Local Server 
+tags:
+  -name: products
+   description: This is the products crud routes
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      summary: Returns all products as response
+      description: Get  every product route
+      responses:
+        "200":
+          description: Every product gotten successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags:
+        - products
+      description: Adds new product
+      request body:
+        description: This is a description
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: New product posted successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /products/{id}:
+    get:
+      tags:
+        - products
+      summary: Returns the product based on the ID specified
+      description: Get product based on ID route
+      parameters:
+       -in: path
+        name: id
+        required: true
+        schema: 
+          type: string
+        description: ID of the product to be gotten
+      responses:
+        "200":
+          description: Product gotten successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags:
+        - products
+      summary: Edit the product based on the ID specified
+      description: Edit product based on ID route
+      parameters:
+       -in: path
+        name: id
+        required: true
+        schema: 
+          type: string
+        description: ID of the product to be gotten
+      responses:
+        "200":
+          description: Product edited successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - products
+      summary: Delete the product based on the ID specified
+      description: Delete product based on ID route
+      parameters:
+       -in: path
+        name: id
+        required: true
+        schema: 
+          type: string
+        description: ID of the product to be gotten
+      responses:
+        "200":
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  responses:
+    NotFound:
+      description: Returns this error when product does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        imgURL:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    

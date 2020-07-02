@@ -1,6 +1,7 @@
 const express = require("express")
 const {check} = require("express-validator")
 const uniqid = require("uniqid")
+const {begin} = require("xmlbuilder")
 const {getProducts, postProducts} = require('../../lib')
 
 const productRouter = express.Router()
@@ -40,6 +41,10 @@ productRouter.put('/:id', [check("name").exists().withMessage("name is required"
          await postProducts(productsDB)
      }
  })
+ productRouter.get('/:sum',  async (req,res,next)=>{
+    const productsDB = await getProducts()
+    res.send(productsDB.id)
+})
 
- productRouter.delete('/:id')
+
 module.exports = productRouter

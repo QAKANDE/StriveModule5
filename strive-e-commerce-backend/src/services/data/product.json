@@ -1,1 +1,17 @@
-[{"name":"q","id":"1"},{"name":"malik","id":"2"},{"id":"bgq85gskc1n1h1a","createdAt":"2020-06-30T07:57:16.029Z","updatedAt":"2020-06-30T07:57:16.029Z"}]
+[
+    {
+        "name": "q",
+        "id": "1",
+        "price1":"3",
+        "price2":"4"
+    },
+    {
+        "name": "malik",
+        "id": "2"
+    },
+    {
+        "id": "bgq85gskc1n1h1a",
+        "createdAt": "2020-06-30T07:57:16.029Z",
+        "updatedAt": "2020-06-30T07:57:16.029Z"
+    }
+]
