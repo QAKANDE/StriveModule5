@@ -8,7 +8,7 @@ const axios = require("axios")
 
 const sumRoute = express.Router()
 
-sumRoute.get('/sumPrices', async (req,res,next) => {
+sumRoute.get('/sumPrice', async (req,res,next) => {
     try {
         const {price1,price2} = req.query
         if(price1 & price2){
