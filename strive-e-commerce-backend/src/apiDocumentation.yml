@@ -5,15 +5,15 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:3002
-    description: This is the Local Server 
+    description: This Is The Local Server 
 tags:
-  -name: products
+  -name: Products
    description: This is the products crud routes
 paths:
   /products:
     get:
       tags:
-        - products
+        - Products
       summary: Returns all products as response
       description: Get  every product route
       responses:
@@ -29,7 +29,8 @@ paths:
           $ref: "#/components/responses/NotFound"
     post:
       tags:
-        - products
+        - Products
+      summary: Add new product
       description: Adds new product
       request body:
         description: This is a description
@@ -51,11 +52,11 @@ paths:
   /products/{id}:
     get:
       tags:
-        - products
+        - Products
       summary: Returns the product based on the ID specified
       description: Get product based on ID route
       parameters:
-       -in: path
+       -in: query
         name: id
         required: true
         schema: 
@@ -74,7 +75,7 @@ paths:
           $ref: "#/components/responses/NotFound"
     put:
       tags:
-        - products
+        - Products
       summary: Edit the product based on the ID specified
       description: Edit product based on ID route
       parameters:
@@ -97,7 +98,7 @@ paths:
           $ref: "#/components/responses/NotFound"
     delete:
       tags:
-        - products
+        - Products
       summary: Delete the product based on the ID specified
       description: Delete product based on ID route
       parameters:
