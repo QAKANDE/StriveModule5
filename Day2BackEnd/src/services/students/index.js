@@ -1,53 +1,52 @@
-const express = require("express") 
-const fs = require("fs") 
-const path = require("path")
-const uniqid = require("uniqid") 
-const { request } = require("http")
-const router = express.Router()
-const studentFilePath = path.join(__dirname ,"students.json")
+const express = require("express")
+const studentSchema = require('./schema')
+const uniqid = require("uniqid")
+const routes = express.Router()
 
-router.get("/" , (req,res) => {
-    const studentFileContentAsBuffer = fs.readFileSync(studentFilePath)
-    const studentFileContentAsString = studentFileContentAsBuffer.toString()
-    console.log(studentFileContentAsString)
-    res.send(JSON.parse(studentFileContentAsString))
+routes.get("/" , async (req,res,next)=>{
+    try {
+        const students = await studentSchema.find({})
+        res.send(students)
+    } catch (error) {
+       console.log(error) 
+    }
+} )
+routes.get("/:id" , async(req,res,next)=>{
+    try {
+        const studentFound = await studentSchema.findById(req.params.id)
+        res.send(studentFound)
+    } catch (error) {
+        console.log(error)
+    }   
 })
 
-router.get("/:id", (request, res) => {
-    const studentFileContentAsBuffer = fs.readFileSync(studentFilePath)
-    const studentsArray = JSON.parse(studentFileContentAsBuffer.toString())
-    console.log('id',request.params.id)
-    const student = studentsArray.filter((student) => parseInt(student.id) === parseInt(request.params.id))
-    console.log(student)
-    res.send(student)
-})
+routes.post("/" , async(req,res,next)=>{
+    try {
+        const newStudentPost = new studentSchema(req.body)
+        await newStudentPost.save()
+        res.send(newStudentPost)
+    } catch (error) {
+        console.log(error)
+    }
+} )
 
-router.post("/" , (request,res) => {
-   const newStudent = {...request.body , id:uniqid()}
-   const studentFileContentAsBuffer = fs.readFileSync(studentFilePath)
-   const studentsArray = JSON.parse(studentFileContentAsBuffer.toString())
-   studentsArray.push(newStudent)
-   fs.writeFileSync(studentFilePath , JSON.stringify(studentsArray))
-   res.send(newStudent)
-})
+routes.put("/:id" ,async(req,res,next)=>{
+    try {
+        const editStudent = await studentSchema.findByIdAndUpdate(req.params.id,req.body)
+        res.send(req.body)
+    } catch (error) {
+        console.log(error)
+    }
+} )
+routes.delete("/:id" ,async(req,res,next)=>{
+    try {
+        const deleteStudent = await studentSchema.findByIdAndDelete(req.params.id)
+        res.send("Deleted")
+    } catch (error) {
+        
+    }
+    
+} )
 
-router.put("/:id" , (request,res)=>{
-    const studentFileContentAsBuffer = fs.readFileSync(studentFilePath)
-    const studentsArray = JSON.parse(studentFileContentAsBuffer.toString())
-    const filteredStudent = studentsArray.filter((student) => student.id != request.param.id)
-    const student = request.body
-    student.id = request.params.id
-    filteredStudent.push(student)
-    fs.writeFileSync(studentFilePath , JSON.stringify(filteredStudent))
-    res.send(student)
-})
 
-router.delete("/:id" ,(request,res)=>{
-    const studentFileContentAsBuffer = fs.readFileSync(studentFilePath)
-    const studentsArray = JSON.parse(studentFileContentAsBuffer.toString())
-    const filteredStudent = studentsArray.filter((student) => student.id !== request.params.id)
-    fs.writeFileSync(studentFilePath , JSON.stringify(filteredStudent))
-    res.send(filteredStudent)
-
-})
-module.exports = router
+module.exports = routes
