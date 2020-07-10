@@ -1,51 +1,103 @@
 const express = require("express")
-const {check} = require("express-validator")
-const uniqid = require("uniqid")
-const {begin} = require("xmlbuilder")
-const {getProducts, postProducts,getReviews} = require('../../lib')
+const productsSchema = require("./schema")
+const productModel = require("./schema")
+const q2m = require("query-to-mongo")
+const routes = express.Router()
 
-const productRouter = express.Router()
-
-productRouter.get('/', async (req,res,next) => {
-    const products = await getProducts()
-    res.send(products)
-})
-productRouter.get('/:id', async (req,res,next) => {
-    const products = await getProducts()
-    const singleProduct = products.filter(product => product.id === req.params.id)
-    res.send(singleProduct)
-})
-productRouter.post('/', [check("name").exists().withMessage("name is required")], async (req,res,next) => {
+routes.get("/" , async (req,res,next)=>{
     try {
-        
-        const newProduct = {...req.body , id:uniqid(), createdAt:new Date(), updatedAt: new Date()}
-         const productsDB = await getProducts()
-         productsDB.push(newProduct)
-         await postProducts(productsDB)
-         res.send(productsDB)
+        const products = await productModel.find({})
+        res.send(products)
     } catch (error) {
-      console.log(error)
+       console.log(error) 
+    }
+} )
+routes.get("/:id" , async(req,res,next)=>{
+    try {
+        const productFound = await productModel.findById(req.params.id)
+        res.send(productFound)
+    } catch (error) {
+        console.log(error)
+    }   
+})
+
+routes.post("/" , async(req,res,next)=>{
+    try {
+        const newProductPost = new productsSchema(req.body)
+        await newProductPost.save()
+        res.send(newProductPost)
+    } catch (error) {
+        console.log(error)
+    }
+} )
+
+routes.put("/:id" ,async(req,res,next)=>{
+    try {
+        const editProduct = await productsSchema.findByIdAndUpdate(req.params.id,req.body)
+        res.send(req.body)
+    } catch (error) {
+        console.log(error)
+    }
+} )
+routes.delete("/:id" ,async(req,res,next)=>{
+    try {
+        const deleteProduct = await productsSchema.findByIdAndDelete(req.params.id)
+        res.send("Deleted")
+    } catch (error) {
+        
+    }  
+})
+
+routes.get("/filter", async (req,res,next)=>{
+    try {
+        const query = q2m(req.query)
+        const products = await productsSchema.find(query.criteria, query.options.fields)
+        .skip(query.options.skip)
+      .limit(query.options.limit)
+      res.send({data:products})
+    } catch (error) {
+        console.log(error)
     }
 })
-productRouter.put('/:id', [check("name").exists().withMessage("name is required")], async (req,res,next) => {
-     const productsDB = await getProducts()
-     const productFound = productsDB.find(product => product.id === req.params.id)
-     if(product){
-         const position = product.indexOf(productFound)
-         const body = req.body
-         delete body.createdAt
-         delete body.updatedAt
-         delete body.id
-         const updatedProduct = [...productFound , ...body]
-         product[position] = updatedProduct
-         await postProducts(productsDB)
-     }
- })
- productRouter.get("/sum",  async (req,res,next)=>{
-    const productsDB = await getProducts()
-    console.log("ok")
-    res.send(productsDB)
-})
+
+routes.post("/:id/add-to-cart/:productId", async (req, res, next) => {
+    try {
+      const product = await productModel.findProduct(req.params.productId)
+      if (product) {
+        const newProduct = { ...product, quantity: 1 }
+        const productAvailableInCart = await productModel.findProductInCart(
+          req.params.id,
+          req.params.productId
+        )
+        if (productAvailableInCart) {
+          await productModel.increaseQuantity(
+            req.params.id,
+            req.params.productId,
+            1
+          )
+          res.send("Increased Quantity by 1")
+        } else {
+          await productModel.addProductToCart(req.params.id, newProduct)
+          res.send(newProduct)
+        }
+      } else {
+        const error = new Error()
+        error.httpStatusCode = 404
+        next(error)
+      }
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  routes.get("/:id/calculate-cart-total", async (req, res, next) => {
+    try {
+      const total = await productModel.calculateCartTotal(req.params.id)
+      res.send({ total })
+    } catch (error) {
+      next(error)
+    }
+  })
 
 
-module.exports = productRouter
+module.exports = routes
